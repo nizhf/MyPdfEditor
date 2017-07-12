@@ -1,0 +1,15 @@
+﻿<Window x:Class="MyPdfEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyPdfEditor"
+        mc:Ignorable="d"
+        Title="PDF Editor" Height="350" Width="525" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <TextBox x:Name="textBox_fileList" HorizontalAlignment="Left" Height="236" Margin="46,29,0,0" TextWrapping="Wrap" Text="All PDF files to merge:" VerticalAlignment="Top" Width="228"/>
+        <Button x:Name="btn_add" Content="Add" HorizontalAlignment="Left" Margin="369,66,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="btn_clear" Content="Clear" HorizontalAlignment="Left" Margin="369,140,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.667,1.947"/>
+        <Button x:Name="btn_merge" Content="Merge" HorizontalAlignment="Left" Margin="369,212,0,0" VerticalAlignment="Top" Width="75"/>
+    </Grid>
+</Window>
