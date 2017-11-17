@@ -12,7 +12,6 @@ E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\MyPdf
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\MyPdfEditor.csproj.GenerateResource.Cache
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\MyPdfEditor.exe
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\MyPdfEditor.pdb
-E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Debug\itextsharp.dll
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Debug\itextsharp.xml
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Debug\MyPdfEditor.exe.manifest
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Debug\MyPdfEditor.application
