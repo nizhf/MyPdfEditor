@@ -52,6 +52,8 @@ namespace MyPdfEditor
         private void btn_merge_clear_Click(object sender, RoutedEventArgs e) {
             FileList.Clear();
             listBox_merge_fileList.Items.Clear();
+            btn_merge_up.IsEnabled = false;
+            btn_merge_down.IsEnabled = false;
         }
 
         private void btn_merge_add_Click(object sender, RoutedEventArgs e) {
@@ -113,7 +115,14 @@ namespace MyPdfEditor
             fileList.RemoveAt(index + 1);
             listBox_merge_fileList.Items.Insert(index - 1, listBox_merge_fileList.Items.GetItemAt(index));
             listBox_merge_fileList.Items.RemoveAt(index + 1);
-            listBox_merge_fileList.SelectedIndex = index - 1;
+            if (index - 1 == 0) {
+                btn_merge_up.IsEnabled = false;
+                btn_merge_down.IsEnabled = true;
+            }
+            else {
+                btn_merge_up.IsEnabled = true;
+                btn_merge_down.IsEnabled = true;
+            }
         }
 
         private void btn_merge_down_Click(object sender, RoutedEventArgs e) {
@@ -123,26 +132,37 @@ namespace MyPdfEditor
             }
             fileList.Insert(index + 2, FileList[index]);
             fileList.RemoveAt(index);
-            listBox_merge_fileList.Items.Insert(index + 2, listBox_merge_fileList.Items.GetItemAt(index));
-            listBox_merge_fileList.Items.RemoveAt(index);
-            listBox_merge_fileList.SelectedIndex = index + 1;
+            listBox_merge_fileList.Items.Insert(index, listBox_merge_fileList.Items.GetItemAt(index + 1));
+            listBox_merge_fileList.Items.RemoveAt(index + 2);
+            if (index + 1 == listBox_merge_fileList.Items.Count - 1) {
+                btn_merge_up.IsEnabled = true;
+                btn_merge_down.IsEnabled = false;
+            }
+            else {
+                btn_merge_up.IsEnabled = true;
+                btn_merge_down.IsEnabled = true;
+            }
         }
 
-        //private void listBox_merge_fileList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
-        //    int index = listBox_merge_fileList.SelectedIndex;
-        //    MessageBox.Show("changed");
-        //    if (index == 0) {
-        //        btn_merge_up.IsEnabled = false;
-        //        btn_merge_down.IsEnabled = true;
-        //    }
-        //    else if (index == listBox_merge_fileList.Items.Count - 1) {
-        //        btn_merge_up.IsEnabled = true;
-        //        btn_merge_down.IsEnabled = false;
-        //    }
-        //    else {
-        //        btn_merge_up.IsEnabled = true;
-        //        btn_merge_down.IsEnabled = true;
-        //    }
-        //}
+        private void listBox_merge_fileList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            int index = listBox_merge_fileList.SelectedIndex;
+            if (index == -1) {
+                btn_merge_up.IsEnabled = false;
+                btn_merge_down.IsEnabled = false;
+            }
+            else if (index == 0) {
+                btn_merge_up.IsEnabled = false;
+                btn_merge_down.IsEnabled = true;
+            }
+            else if (index == listBox_merge_fileList.Items.Count - 1) {
+                btn_merge_up.IsEnabled = true;
+                btn_merge_down.IsEnabled = false;
+            }
+            else {
+                btn_merge_up.IsEnabled = true;
+                btn_merge_down.IsEnabled = true;
+            }
+        }
+
     }
 }

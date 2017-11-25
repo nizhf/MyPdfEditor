@@ -5,41 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyPdfEditor"
         mc:Ignorable="d"
-        Title="PDF Editor" Height="500" Width="800" WindowStartupLocation="CenterScreen">
+        Title="PDF Editor" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
     <TabControl x:Name="tabControl" Margin="0,0,2,-6">
-        <TabItem Header="Merge" Margin="-2,-2,-30,0">
+        <TabItem Header="Merge" Margin="-2,-2,-30,0" FontSize="15">
             <Grid Background="#FFE5E5E5">
-                <Button x:Name="btn_add_merge" FontSize="20" Content="Add" Margin="624,88,66,320" Click="btn_merge_add_Click"/>
-                <Button x:Name="btn_clear_merge" FontSize="20" Content="Clear" Margin="624,252,66,156" Click="btn_merge_clear_Click"/>
-                <Button x:Name="btn_merge_merge" FontSize="20" Content="Merge" Margin="624,331,66,77" Click="btn_merge_merge_Click"/>
-                <Button x:Name="btn_remove_merge" FontSize="20" Content="Remove" Margin="624,171,66,237" Click="btn_merge_remove_Click"/>
-                <ListBox x:Name="listBox_merge_fileList" Margin="32,88,292,38" FontSize="15">
+                <Button x:Name="btn_merge_add" FontSize="20" Content="Add" Margin="792,101,0,0" Click="btn_merge_add_Click" HorizontalAlignment="Left" Width="126" Height="50" VerticalAlignment="Top"/>
+                <Button x:Name="btn_merge_clear" FontSize="20" Content="Clear" Margin="792,330,0,0" Click="btn_merge_clear_Click" HorizontalAlignment="Left" Width="126" Height="46" VerticalAlignment="Top"/>
+                <Button x:Name="btn_merge_merge" FontSize="20" Content="Merge" Margin="792,443,0,0" Click="btn_merge_merge_Click" HorizontalAlignment="Left" Width="126" Height="46" VerticalAlignment="Top"/>
+                <Button x:Name="btn_merge_remove" FontSize="20" Content="Remove" Margin="792,216,0,0" Click="btn_merge_remove_Click" HorizontalAlignment="Left" Width="126" Height="46" VerticalAlignment="Top"/>
+                <ListBox x:Name="listBox_merge_fileList" Margin="32,88,0,0" FontSize="15" SelectionChanged="listBox_merge_fileList_SelectionChanged" HorizontalAlignment="Left" Width="559" Height="418" VerticalAlignment="Top">
                 </ListBox>
-                <Label x:Name="label_merge" Content="All PDF Files to be merged:" FontSize="25" Margin="32,33,292,365" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Button x:Name="btn_merge_up" Content="" Margin="509,151,185,237" Click="btn_merge_up_Click" RenderTransformOrigin="0.5,0.5" BorderBrush="{x:Null}">
-                    <Button.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform Angle="180"/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </Button.RenderTransform>
-                    <Button.Background>
-                        <ImageBrush ImageSource="pack://siteoforigin:,,,/img/arrow.png"/>
-                    </Button.Background>
-                </Button>
-                <Button x:Name="btn_merge_down" Margin="510,252,184,136" Click="btn_merge_down_Click" BorderBrush="{x:Null}" >
-                    <Button.Background>
-                        <ImageBrush ImageSource="pack://siteoforigin:,,,/img/arrow.png"/>
-                    </Button.Background>
-                </Button>
+                <Label x:Name="label_merge" Content="All PDF Files to be merged:" FontSize="25" Margin="32,33,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="376" Height="50" VerticalAlignment="Top"/>
+                <Button x:Name="btn_merge_up" IsEnabled="False" Content="↑" Margin="626,216,0,0" FontSize="20" FontFamily="Times New Roman" Click="btn_merge_up_Click" HorizontalAlignment="Left" Width="105" Height="46" VerticalAlignment="Top"/>
+                <Button x:Name="btn_merge_down" IsEnabled="False" Content="↓" Margin="626,330,0,0" FontFamily="Times New Roman" FontSize="20" Click="btn_merge_down_Click" HorizontalAlignment="Left" Width="105" Height="46" VerticalAlignment="Top"/>
             </Grid>
         </TabItem>
-        <TabItem Header="Merge Advanced" Margin="29,-2,-29,0">
-            <Grid Background="#FFE5E5E5"/>
+        <TabItem Header="Merge Advanced" Margin="29,-2,-29,0" FontSize="15">
+            <Grid Background="#FFE5E5E5">
+                <Button x:Name="btn_advanced_add" Content="Add" Margin="20,140,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top"/>
+                <Button x:Name="btn_advanced_remove1" Content="Remove" Margin="20,225,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top"/>
+                <Button x:Name="btn_advanced_clear" Content="Clear" Margin="20,313,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top"/>
+                <Button x:Name="btn_advanced_merge" Content="Merge" Margin="874,448,10,40" FontSize="28"/>
+                <ListView x:Name="listView_left" Margin="141,71,0,0" HorizontalAlignment="Left" Width="294" Height="451" VerticalAlignment="Top">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <ListView x:Name="listView_right" Margin="556,71,129,22">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <Label x:Name="label_advanced_1" Content="All PDF Files:" Margin="148,31,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="222" FontSize="20" RenderTransformOrigin="0.495,0.743"/>
+                <Label x:Name="label_advanced_2" Content="PDF Files to be merged:" HorizontalAlignment="Left" Height="53" Margin="556,31,0,0" VerticalAlignment="Top" Width="252" FontSize="20"/>
+                <Button x:Name="btn_advanced_up" Content="↑" HorizontalAlignment="Left" Margin="874,211,0,0" VerticalAlignment="Top" Width="100" Height="50" FontSize="25"/>
+                <Button x:Name="btn_advanced_down" Content="↓" HorizontalAlignment="Left" Margin="874,326,0,0" VerticalAlignment="Top" Width="100" FontSize="25" Height="50"/>
+                <Button x:Name="btn_advanced_right" Content=">>" Margin="456,218,0,0" VerticalAlignment="Top" FontSize="25" HorizontalAlignment="Left" Width="80" Height="45"/>
+                <Button x:Name="btn_advanced_left" Content="&lt;&lt;" HorizontalAlignment="Left" Margin="456,313,0,0" VerticalAlignment="Top" Width="80" FontSize="25" Height="45"/>
+            </Grid>
         </TabItem>
-        <TabItem Header="Split" Margin="28,-2,-60,0">
+        <TabItem Header="Split" Margin="28,-2,-60,0" FontSize="15">
             <Grid Background="#FFE5E5E5"/>
         </TabItem>
     </TabControl>
