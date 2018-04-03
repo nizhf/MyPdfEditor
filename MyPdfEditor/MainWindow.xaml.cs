@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Windows;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using System.Windows.Controls;
+using System.Collections.ObjectModel;
 
 namespace MyPdfEditor
 {
@@ -12,76 +14,54 @@ namespace MyPdfEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow() {
-            FileList = new List<string>();
+        public struct FilePages {
+            private string name;
+            private int pageStart;
+            private int pageEnd;
+
+            public string Name { get => name; set => name = value; }
+            public int PageStart { get => pageStart; set => pageStart = value; }
+            public int PageEnd { get => pageEnd; set => pageEnd = value; }
+        }
+
+        public struct FileInfo {
+            private string name;
+            private int pageTotal;
+
+            public FileInfo(string name, int pageTotal) : this() {
+                this.name = name;
+                this.pageTotal = pageTotal;
+            }
+
+            public int PageTotal { get => pageTotal; set => pageTotal = value; }
+            public string Name { get => name; set => name = value; }
+        }
+
+        public MainWindow() {                       
             InitializeComponent();
+            FileList = new ObservableCollection<FileInfo>();
+            pageList = new ObservableCollection<FilePages>();
+            defaultPath = "C:\\";
+
         }
 
-        private List<string> fileList;
+        private ObservableCollection<FileInfo> fileList;
+        public ObservableCollection<FileInfo> FileList { get => fileList; set => fileList = value; }
+        private ObservableCollection<FilePages> pageList;
+        public ObservableCollection<FilePages> PageList { get => pageList; set => pageList = value; }
+
         private string defaultPath;
-
-        public List<string> FileList { get => fileList; set => fileList = value; }
         public string DefaultPath { get => defaultPath; set => defaultPath = value; }
+       
 
-        private void btn_merge_merge_Click(object sender, RoutedEventArgs e) {
-            if (FileList.Count == 0) {
-                MessageBox.Show("Please first add PDF files!");
-                return;
-            }
-            System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog() {
-                Title = "Select a location to save the merged file",
-                Filter = "PDF documents |*.pdf",
-                InitialDirectory = DefaultPath,
-                FileName = "Merge_Output.pdf"
-            };
-            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) {
-                return;
-            }
-            MergePdfFiles(FileList, sfd.FileName);            
-        }
-
-        private void btn_merge_remove_Click(object sender, RoutedEventArgs e) {
-            int index = listBox_merge_fileList.SelectedIndex;
-            if (index <= -1) {
-                return;
-            }
-            FileList.RemoveAt(index);
-            listBox_merge_fileList.Items.RemoveAt(index);
-        }
-
-        private void btn_merge_clear_Click(object sender, RoutedEventArgs e) {
-            FileList.Clear();
-            listBox_merge_fileList.Items.Clear();
-            btn_merge_up.IsEnabled = false;
-            btn_merge_down.IsEnabled = false;
-        }
-
-        private void btn_merge_add_Click(object sender, RoutedEventArgs e) {
-            System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog() {
-                Multiselect = true,
-                Title = "Select a PDF file",
-                DefaultExt = ".pdf",
-                Filter = "PDF Documents |*.pdf"
-            };
-            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) {
-                return;
-            }
-            DefaultPath = ofd.FileNames[0].Remove(ofd.FileNames[0].Length - ofd.SafeFileName.Length);
-            for (int i = 0; i < ofd.FileNames.Length; i++) {
-                FileList.Add(ofd.FileNames[i]);
-                listBox_merge_fileList.Items.Add(ofd.FileNames[i]);
-            }
-        }
-
-        private void MergePdfFiles(List<string> fileList, string outputFile) {
-            PdfReader reader;
+        private void MergePdfFiles(string outputFile) {
             Document document = new Document();
             PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
             document.Open();
             PdfContentByte cb = writer.DirectContent;
             PdfImportedPage newPage;
             for (int i = 0; i < FileList.Count; i++) {
-                reader = new PdfReader(FileList[i]);
+                PdfReader reader = new PdfReader(FileList[i].Name);
                 int rotation;
                 for (int j = 1; j <= reader.NumberOfPages; j++) {
                     document.SetPageSize(reader.GetPageSizeWithRotation(j));
@@ -106,63 +86,207 @@ namespace MyPdfEditor
             MessageBox.Show("Merge completed!");
         }
 
-        private void btn_merge_up_Click(object sender, RoutedEventArgs e) {
-            int index = listBox_merge_fileList.SelectedIndex;
+        private void MergePdfFilesAdvance(string outputFile) {
+            Document document = new Document();
+            PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+            document.Open();
+            PdfContentByte cb = writer.DirectContent;
+            PdfImportedPage newPage;
+            for (int i = 0; i < PageList.Count; i++) {
+                PdfReader reader = new PdfReader(PageList[i].Name);
+                int rotation;
+                for (int j = PageList[i].PageStart; j <= PageList[i].PageEnd; j++) {
+                    document.SetPageSize(reader.GetPageSizeWithRotation(j));
+                    document.NewPage();
+                    newPage = writer.GetImportedPage(reader, j);
+                    rotation = reader.GetPageRotation(j);
+                    if (rotation == 90) {
+                        cb.AddTemplate(newPage, 0, -1f, 1f, 0, 0, reader.GetPageSizeWithRotation(j).Height);
+                    }
+                    else if (rotation == 180) {
+                        cb.AddTemplate(newPage, -1f, 0, 0, -1f, reader.GetPageSizeWithRotation(j).Width, reader.GetPageSizeWithRotation(j).Height);
+                    }
+                    else if (rotation == 270) {
+                        cb.AddTemplate(newPage, 0, 1f, -1f, 0, reader.GetPageSizeWithRotation(j).Width, 0);
+                    }
+                    else {
+                        cb.AddTemplate(newPage, 1f, 0, 0, 1f, 0, 0);
+                    }
+                }
+            }
+            document.Close();
+            MessageBox.Show("Merge completed!");
+        }
+
+        private void AddItem() {
+            System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog() {
+                Multiselect = true,
+                Title = "Select a PDF file",
+                DefaultExt = ".pdf",
+                Filter = "PDF Documents |*.pdf"
+            };
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) {
+                return;
+            }
+            DefaultPath = ofd.FileNames[0].Remove(ofd.FileNames[0].Length - ofd.SafeFileName.Length);
+            for (int i = 0; i < ofd.FileNames.Length; i++) {
+                var reader = new PdfReader(ofd.FileNames[i]);
+                FileList.Add(new FileInfo(ofd.FileNames[i], reader.NumberOfPages));
+            }
+        }
+
+        private void ClearList() {
+            FileList.Clear();
+            Btn_merge_up.IsEnabled = false;
+            Btn_merge_down.IsEnabled = false;
+            Btn_advanced_down.IsEnabled = false;
+            Btn_advanced_up.IsEnabled = false;
+        }
+
+        private void RemoveItemAt(int index) {
+            if (index <= -1) {
+                return;
+            }
+            FileList.RemoveAt(index);
+        }
+
+        private void Btn_merge_merge_Click(object sender, RoutedEventArgs e) {
+            if (FileList.Count == 0) {
+                MessageBox.Show("Please first add PDF files!");
+                return;
+            }
+            System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog() {
+                Title = "Select a location to save the merged file",
+                Filter = "PDF documents |*.pdf",
+                InitialDirectory = DefaultPath,
+                FileName = "Merge_Output.pdf"
+            };
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) {
+                return;
+            }
+            MergePdfFiles(sfd.FileName);            
+        }
+
+        private void Btn_merge_add_Click(object sender, RoutedEventArgs e) {
+            AddItem();
+        }
+
+        private void Btn_merge_remove_Click(object sender, RoutedEventArgs e) {
+            RemoveItemAt(ListView_merge.SelectedIndex);
+        }
+
+        private void Btn_merge_clear_Click(object sender, RoutedEventArgs e) {
+            ClearList();
+        }                
+
+        private void Btn_merge_up_Click(object sender, RoutedEventArgs e) {
+            int index = ListView_merge.SelectedIndex;
             if (index <= 0) {
                 return;
             }
             fileList.Insert(index - 1, FileList[index]);
             fileList.RemoveAt(index + 1);
-            listBox_merge_fileList.Items.Insert(index - 1, listBox_merge_fileList.Items.GetItemAt(index));
-            listBox_merge_fileList.Items.RemoveAt(index + 1);
             if (index - 1 == 0) {
-                btn_merge_up.IsEnabled = false;
-                btn_merge_down.IsEnabled = true;
+                Btn_merge_up.IsEnabled = false;
+                Btn_merge_down.IsEnabled = true;
             }
             else {
-                btn_merge_up.IsEnabled = true;
-                btn_merge_down.IsEnabled = true;
+                Btn_merge_up.IsEnabled = true;
+                Btn_merge_down.IsEnabled = true;
             }
         }
 
-        private void btn_merge_down_Click(object sender, RoutedEventArgs e) {
-            int index = listBox_merge_fileList.SelectedIndex;
-            if (index == -1 || index == listBox_merge_fileList.Items.Count - 1) {
+        private void Btn_merge_down_Click(object sender, RoutedEventArgs e) {
+            int index = ListView_merge.SelectedIndex;
+            if (index == -1 || index == ListView_merge.Items.Count - 1) {
                 return;
             }
             fileList.Insert(index + 2, FileList[index]);
             fileList.RemoveAt(index);
-            listBox_merge_fileList.Items.Insert(index, listBox_merge_fileList.Items.GetItemAt(index + 1));
-            listBox_merge_fileList.Items.RemoveAt(index + 2);
-            if (index + 1 == listBox_merge_fileList.Items.Count - 1) {
-                btn_merge_up.IsEnabled = true;
-                btn_merge_down.IsEnabled = false;
+            if (index + 1 == ListView_merge.Items.Count - 1) {
+                Btn_merge_up.IsEnabled = true;
+                Btn_merge_down.IsEnabled = false;
             }
             else {
-                btn_merge_up.IsEnabled = true;
-                btn_merge_down.IsEnabled = true;
+                Btn_merge_up.IsEnabled = true;
+                Btn_merge_down.IsEnabled = true;
             }
         }
 
-        private void listBox_merge_fileList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
-            int index = listBox_merge_fileList.SelectedIndex;
+        private void ListView_merge_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            int index = ListView_merge.SelectedIndex;
             if (index == -1) {
-                btn_merge_up.IsEnabled = false;
-                btn_merge_down.IsEnabled = false;
+                Btn_merge_up.IsEnabled = false;
+                Btn_merge_down.IsEnabled = false;
             }
             else if (index == 0) {
-                btn_merge_up.IsEnabled = false;
-                btn_merge_down.IsEnabled = true;
+                Btn_merge_up.IsEnabled = false;
+                Btn_merge_down.IsEnabled = true;
             }
-            else if (index == listBox_merge_fileList.Items.Count - 1) {
-                btn_merge_up.IsEnabled = true;
-                btn_merge_down.IsEnabled = false;
+            else if (index == ListView_merge.Items.Count - 1) {
+                Btn_merge_up.IsEnabled = true;
+                Btn_merge_down.IsEnabled = false;
             }
             else {
-                btn_merge_up.IsEnabled = true;
-                btn_merge_down.IsEnabled = true;
+                Btn_merge_up.IsEnabled = true;
+                Btn_merge_down.IsEnabled = true;
             }
         }
 
+        private void Btn_advanced_add_Click(object sender, RoutedEventArgs e) {
+            AddItem();
+        }
+
+        private void Btn_advanced_remove_Click(object sender, RoutedEventArgs e) {
+            RemoveItemAt(ListView_left.SelectedIndex);
+        }
+
+        private void Btn_advanced_clear_Click(object sender, RoutedEventArgs e) {
+            ClearList();
+        }
+
+        private void Btn_advanced_right_Click(object sender, RoutedEventArgs e) {
+            int index = ListView_left.SelectedIndex;
+        }
+
+        private void Btn_advanced_left_Click(object sender, RoutedEventArgs e) {
+            ListView_right.Items.RemoveAt(ListView_right.SelectedIndex);
+        }
+
+        private void Btn_advanced_up_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void Btn_advanced_down_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void Btn_advanced_merge_Click(object sender, RoutedEventArgs e) {
+            pageList.Clear();
+            foreach (ListViewItem current in ListView_right.Items) {
+                
+            }
+            Console.Write(pageList[0].Name);
+        }
+
+        private void ListBox_advanced_fileList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            int index = ListView_right.SelectedIndex;
+            if (index == -1) {
+                Btn_advanced_up.IsEnabled = false;
+                Btn_advanced_down.IsEnabled = false;
+            }
+            else if (index == 0) {
+                Btn_advanced_up.IsEnabled = false;
+                Btn_advanced_down.IsEnabled = true;
+            }
+            else if (index == ListView_right.Items.Count - 1) {
+                Btn_advanced_up.IsEnabled = true;
+                Btn_advanced_down.IsEnabled = false;
+            }
+            else {
+                Btn_advanced_up.IsEnabled = true;
+                Btn_advanced_down.IsEnabled = true;
+            }
+        }
     }
 }

@@ -17,3 +17,4 @@ E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Debug\MyPdf
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Debug\MyPdfEditor.application
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\MyPdfEditor.exe.manifest
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\MyPdfEditor.application
+E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Debug\GeneratedInternalTypeHelper.g.cs
