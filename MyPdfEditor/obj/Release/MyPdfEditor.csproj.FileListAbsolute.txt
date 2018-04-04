@@ -3,7 +3,6 @@ E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Release\MyP
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Release\MyPdfEditor.application
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Release\MyPdfEditor.exe
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Release\MyPdfEditor.pdb
-E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Release\itextsharp.dll
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\bin\Release\itextsharp.xml
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\MainWindow.g.cs
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\App.g.cs
@@ -17,3 +16,5 @@ E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\MyP
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\MyPdfEditor.application
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\MyPdfEditor.exe
 E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\MyPdfEditor.pdb
+E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\MyPdfEditor.csprojResolveAssemblyReference.cache
+E:\workspace\Visual Studio 2017\Projects\MyPdfEditor\MyPdfEditor\obj\Release\GeneratedInternalTypeHelper.g.cs

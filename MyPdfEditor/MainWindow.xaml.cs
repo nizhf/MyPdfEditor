@@ -6,29 +6,44 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace MyPdfEditor
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
+    /// 
+
+    
+
     public partial class MainWindow : Window
     {
-        public struct FilePages {
+        public class FilePages : INotifyPropertyChanged
+        {
             private string name;
             private int pageStart;
             private int pageEnd;
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public FilePages(string name, int pageStart, int pageEnd) {
+                this.name = name;
+                this.pageStart = pageStart;
+                this.pageEnd = pageEnd;
+            }
 
             public string Name { get => name; set => name = value; }
             public int PageStart { get => pageStart; set => pageStart = value; }
             public int PageEnd { get => pageEnd; set => pageEnd = value; }
         }
 
-        public struct FileInfo {
+        public class FileInfo : INotifyPropertyChanged
+        {
             private string name;
             private int pageTotal;
+            public event PropertyChangedEventHandler PropertyChanged;
 
-            public FileInfo(string name, int pageTotal) : this() {
+            public FileInfo(string name, int pageTotal) {
                 this.name = name;
                 this.pageTotal = pageTotal;
             }
@@ -137,17 +152,11 @@ namespace MyPdfEditor
 
         private void ClearList() {
             FileList.Clear();
+            PageList.Clear();
             Btn_merge_up.IsEnabled = false;
             Btn_merge_down.IsEnabled = false;
             Btn_advanced_down.IsEnabled = false;
             Btn_advanced_up.IsEnabled = false;
-        }
-
-        private void RemoveItemAt(int index) {
-            if (index <= -1) {
-                return;
-            }
-            FileList.RemoveAt(index);
         }
 
         private void Btn_merge_merge_Click(object sender, RoutedEventArgs e) {
@@ -172,7 +181,10 @@ namespace MyPdfEditor
         }
 
         private void Btn_merge_remove_Click(object sender, RoutedEventArgs e) {
-            RemoveItemAt(ListView_merge.SelectedIndex);
+            int index = ListView_merge.SelectedIndex;
+            if (index < 0)
+                return;
+            FileList.RemoveAt(index);
         }
 
         private void Btn_merge_clear_Click(object sender, RoutedEventArgs e) {
@@ -238,7 +250,10 @@ namespace MyPdfEditor
         }
 
         private void Btn_advanced_remove_Click(object sender, RoutedEventArgs e) {
-            RemoveItemAt(ListView_left.SelectedIndex);
+            int index = ListView_left.SelectedIndex;
+            if (index < 0)
+                return;
+            FileList.RemoveAt(index);
         }
 
         private void Btn_advanced_clear_Click(object sender, RoutedEventArgs e) {
@@ -247,29 +262,70 @@ namespace MyPdfEditor
 
         private void Btn_advanced_right_Click(object sender, RoutedEventArgs e) {
             int index = ListView_left.SelectedIndex;
+            if (index < 0)
+                return;
+            PageList.Add(new FilePages(FileList[index].Name, 1, FileList[index].PageTotal));
         }
 
         private void Btn_advanced_left_Click(object sender, RoutedEventArgs e) {
-            ListView_right.Items.RemoveAt(ListView_right.SelectedIndex);
+            int index = ListView_right.SelectedIndex;
+            if (index < 0)
+                return;
+            PageList.RemoveAt(index);
         }
 
         private void Btn_advanced_up_Click(object sender, RoutedEventArgs e) {
-
+            int index = ListView_right.SelectedIndex;
+            if (index <= 0) {
+                return;
+            }
+            PageList.Insert(index - 1, PageList[index]);
+            PageList.RemoveAt(index + 1);
+            if (index - 1 == 0) {
+                Btn_advanced_up.IsEnabled = false;
+                Btn_advanced_down.IsEnabled = true;
+            }
+            else {
+                Btn_advanced_up.IsEnabled = true;
+                Btn_advanced_down.IsEnabled = true;
+            }
         }
 
         private void Btn_advanced_down_Click(object sender, RoutedEventArgs e) {
-
+            int index = ListView_right.SelectedIndex;
+            if (index == -1 || index == ListView_right.Items.Count - 1) {
+                return;
+            }
+            PageList.Insert(index + 2, PageList[index]);
+            PageList.RemoveAt(index);
+            if (index + 1 == ListView_right.Items.Count - 1) {
+                Btn_advanced_up.IsEnabled = true;
+                Btn_advanced_down.IsEnabled = false;
+            }
+            else {
+                Btn_advanced_up.IsEnabled = true;
+                Btn_advanced_down.IsEnabled = true;
+            }
         }
 
         private void Btn_advanced_merge_Click(object sender, RoutedEventArgs e) {
-            pageList.Clear();
-            foreach (ListViewItem current in ListView_right.Items) {
-                
+            if (PageList.Count == 0) {
+                MessageBox.Show("Please first add PDF files!");
+                return;
             }
-            Console.Write(pageList[0].Name);
+            System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog() {
+                Title = "Select a location to save the merged file",
+                Filter = "PDF documents |*.pdf",
+                InitialDirectory = DefaultPath,
+                FileName = "Merge_Output.pdf"
+            };
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) {
+                return;
+            }
+            MergePdfFilesAdvance(sfd.FileName);
         }
 
-        private void ListBox_advanced_fileList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+        private void ListView_right_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             int index = ListView_right.SelectedIndex;
             if (index == -1) {
                 Btn_advanced_up.IsEnabled = false;

@@ -35,12 +35,28 @@
                 <Button x:Name="Btn_advanced_remove" Content="Remove" Margin="0,231,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_remove_Click" Grid.Column="1"/>
                 <Button x:Name="Btn_advanced_clear" Content="Clear" Margin="0,326,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_clear_Click" Grid.Column="1"/>
                 <Button x:Name="Btn_advanced_merge" Content="Merge" Margin="0,0,10,40" FontSize="25" Click="Btn_advanced_merge_Click" Grid.Column="1" Height="56" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="90"/>
-                <ListView x:Name="ListView_right" Margin="592,71,105,22" Grid.Column="1" ItemsSource="{Binding PageList}">
+                <ListView x:Name="ListView_right" Margin="592,71,105,22" Grid.Column="1" ItemsSource="{Binding PageList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectionChanged="ListView_right_SelectionChanged">
                     <ListView.View>
-                        <GridView AllowsColumnReorder="False">
-                            <GridViewColumn Header="File" Width="340"/>
-                            <GridViewColumn Header="From" Width="50"/>
-                            <GridViewColumn Header="To" Width="50"/>
+                        <GridView AllowsColumnReorder="False">                            
+                            <GridViewColumn Header="From" Width="50">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <TextBox Text="{Binding Path=PageStart, Mode=TwoWay}" Width="35"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="To" Width="50">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <TextBox Text="{Binding Path=PageEnd, Mode=TwoWay}" Width="35"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="File" DisplayMemberBinding="{Binding Path=Name}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -53,8 +69,8 @@
                 <ListView x:Name="ListView_left" Grid.Column="1" HorizontalAlignment="Left" Height="453" Margin="119,71,0,0" VerticalAlignment="Top" Width="383" ItemsSource="{Binding FileList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
                     <ListView.View>
                         <GridView AllowsColumnReorder="False">
-                            <GridViewColumn Header="File" Width="320" DisplayMemberBinding="{Binding Name}"/>
-                            <GridViewColumn Header="Pages" Width="55" DisplayMemberBinding="{Binding PageTotal}"/>
+                            <GridViewColumn Header="Pages" Width="55" DisplayMemberBinding="{Binding Path=PageTotal}"/>
+                            <GridViewColumn Header="File" DisplayMemberBinding="{Binding Path=Name}"/>                            
                         </GridView>
                     </ListView.View>
                 </ListView>

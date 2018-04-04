@@ -54,14 +54,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyPdfEditor.exe" size="34200">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyPdfEditor.exe" size="35736">
       <assemblyIdentity name="MyPdfEditor" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>11aj/X7rzxbq017n+UQpwg602puyKVmGiq6tofRruDA=</dsig:DigestValue>
+        <dsig:DigestValue>lVgoGA2QIpVRPOAbh64kTEV1F0+8KDmJ0W2ZDSdb0qs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
