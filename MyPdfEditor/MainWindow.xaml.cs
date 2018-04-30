@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Windows;
-using iTextSharp.text;
+﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
-using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace MyPdfEditor
 {
@@ -15,59 +13,44 @@ namespace MyPdfEditor
     /// </summary>
     /// 
 
-    
-
     public partial class MainWindow : Window
     {
-        public class FilePages : INotifyPropertyChanged
+        public class FileInfo : INotifyPropertyChanged
         {
             private string name;
             private int pageStart;
             private int pageEnd;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public FilePages(string name, int pageStart, int pageEnd) {
+            public FileInfo(string name, int pageStart, int pageEnd) {
                 this.name = name;
                 this.pageStart = pageStart;
                 this.pageEnd = pageEnd;
             }
 
+            public int PageTotal { get => pageEnd - pageStart + 1; }
             public string Name { get => name; set => name = value; }
             public int PageStart { get => pageStart; set => pageStart = value; }
             public int PageEnd { get => pageEnd; set => pageEnd = value; }
         }
 
-        public class FileInfo : INotifyPropertyChanged
-        {
-            private string name;
-            private int pageTotal;
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            public FileInfo(string name, int pageTotal) {
-                this.name = name;
-                this.pageTotal = pageTotal;
-            }
-
-            public int PageTotal { get => pageTotal; set => pageTotal = value; }
-            public string Name { get => name; set => name = value; }
-        }
-
-        public MainWindow() {                       
+        public MainWindow() {
             InitializeComponent();
-            FileList = new ObservableCollection<FileInfo>();
-            pageList = new ObservableCollection<FilePages>();
+            fileList = new ObservableCollection<FileInfo>();
+            pageList = new ObservableCollection<FileInfo>();
             defaultPath = "C:\\";
 
         }
 
         private ObservableCollection<FileInfo> fileList;
         public ObservableCollection<FileInfo> FileList { get => fileList; set => fileList = value; }
-        private ObservableCollection<FilePages> pageList;
-        public ObservableCollection<FilePages> PageList { get => pageList; set => pageList = value; }
+
+        private ObservableCollection<FileInfo> pageList;
+        public ObservableCollection<FileInfo> PageList { get => pageList; set => pageList = value; }
 
         private string defaultPath;
         public string DefaultPath { get => defaultPath; set => defaultPath = value; }
-       
+
 
         private void MergePdfFiles(string outputFile) {
             Document document = new Document();
@@ -75,8 +58,8 @@ namespace MyPdfEditor
             document.Open();
             PdfContentByte cb = writer.DirectContent;
             PdfImportedPage newPage;
-            for (int i = 0; i < FileList.Count; i++) {
-                PdfReader reader = new PdfReader(FileList[i].Name);
+            foreach (FileInfo item in FileList) {
+                PdfReader reader = new PdfReader(item.Name);
                 int rotation;
                 for (int j = 1; j <= reader.NumberOfPages; j++) {
                     document.SetPageSize(reader.GetPageSizeWithRotation(j));
@@ -107,10 +90,10 @@ namespace MyPdfEditor
             document.Open();
             PdfContentByte cb = writer.DirectContent;
             PdfImportedPage newPage;
-            for (int i = 0; i < PageList.Count; i++) {
-                PdfReader reader = new PdfReader(PageList[i].Name);
+            foreach (FileInfo item in PageList) {
+                PdfReader reader = new PdfReader(item.Name);
                 int rotation;
-                for (int j = PageList[i].PageStart; j <= PageList[i].PageEnd; j++) {
+                for (int j = item.PageStart; j <= item.PageEnd; j++) {
                     document.SetPageSize(reader.GetPageSizeWithRotation(j));
                     document.NewPage();
                     newPage = writer.GetImportedPage(reader, j);
@@ -144,9 +127,9 @@ namespace MyPdfEditor
                 return;
             }
             DefaultPath = ofd.FileNames[0].Remove(ofd.FileNames[0].Length - ofd.SafeFileName.Length);
-            for (int i = 0; i < ofd.FileNames.Length; i++) {
-                var reader = new PdfReader(ofd.FileNames[i]);
-                FileList.Add(new FileInfo(ofd.FileNames[i], reader.NumberOfPages));
+            foreach (string name in ofd.FileNames) {
+                var reader = new PdfReader(name);
+                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages));
             }
         }
 
@@ -173,7 +156,7 @@ namespace MyPdfEditor
             if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) {
                 return;
             }
-            MergePdfFiles(sfd.FileName);            
+            MergePdfFiles(sfd.FileName);
         }
 
         private void Btn_merge_add_Click(object sender, RoutedEventArgs e) {
@@ -181,24 +164,27 @@ namespace MyPdfEditor
         }
 
         private void Btn_merge_remove_Click(object sender, RoutedEventArgs e) {
-            int index = ListView_merge.SelectedIndex;
-            if (index < 0)
+            var items = ListView_merge.SelectedItems;
+            if (items.Count <= 0)
                 return;
-            FileList.RemoveAt(index);
+            while (items.Count > 0) {
+                FileList.Remove(items[0] as FileInfo);
+            }
         }
 
         private void Btn_merge_clear_Click(object sender, RoutedEventArgs e) {
             ClearList();
-        }                
+        }
 
         private void Btn_merge_up_Click(object sender, RoutedEventArgs e) {
             int index = ListView_merge.SelectedIndex;
             if (index <= 0) {
                 return;
             }
-            fileList.Insert(index - 1, FileList[index]);
-            fileList.RemoveAt(index + 1);
-            if (index - 1 == 0) {
+            FileList.Insert(index - 1, FileList[index]);
+            FileList.RemoveAt(index + 1);
+            ListView_merge.SelectedIndex = index - 1;
+            if (ListView_merge.SelectedIndex == 0) {
                 Btn_merge_up.IsEnabled = false;
                 Btn_merge_down.IsEnabled = true;
             }
@@ -213,9 +199,10 @@ namespace MyPdfEditor
             if (index == -1 || index == ListView_merge.Items.Count - 1) {
                 return;
             }
-            fileList.Insert(index + 2, FileList[index]);
-            fileList.RemoveAt(index);
-            if (index + 1 == ListView_merge.Items.Count - 1) {
+            FileList.Insert(index + 2, FileList[index]);
+            FileList.RemoveAt(index);
+            ListView_merge.SelectedIndex = index + 1;
+            if (ListView_merge.SelectedIndex == ListView_merge.Items.Count - 1) {
                 Btn_merge_up.IsEnabled = true;
                 Btn_merge_down.IsEnabled = false;
             }
@@ -225,7 +212,7 @@ namespace MyPdfEditor
             }
         }
 
-        private void ListView_merge_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+        private void ListView_merge_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             int index = ListView_merge.SelectedIndex;
             if (index == -1) {
                 Btn_merge_up.IsEnabled = false;
@@ -250,10 +237,12 @@ namespace MyPdfEditor
         }
 
         private void Btn_advanced_remove_Click(object sender, RoutedEventArgs e) {
-            int index = ListView_left.SelectedIndex;
-            if (index < 0)
+            var items = ListView_left.SelectedItems;
+            if (items.Count <= 0)
                 return;
-            FileList.RemoveAt(index);
+            while (items.Count > 0) {
+                FileList.Remove(items[0] as FileInfo);
+            }
         }
 
         private void Btn_advanced_clear_Click(object sender, RoutedEventArgs e) {
@@ -261,17 +250,21 @@ namespace MyPdfEditor
         }
 
         private void Btn_advanced_right_Click(object sender, RoutedEventArgs e) {
-            int index = ListView_left.SelectedIndex;
-            if (index < 0)
+            var items = ListView_left.SelectedItems;
+            if (items.Count <= 0)
                 return;
-            PageList.Add(new FilePages(FileList[index].Name, 1, FileList[index].PageTotal));
+            foreach (FileInfo item in items) {
+                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal));
+            }
         }
 
         private void Btn_advanced_left_Click(object sender, RoutedEventArgs e) {
-            int index = ListView_right.SelectedIndex;
-            if (index < 0)
+            var items = ListView_right.SelectedItems;
+            if (items.Count <= 0)
                 return;
-            PageList.RemoveAt(index);
+            while (items.Count > 0) {
+                PageList.Remove(items[0] as FileInfo);
+            }
         }
 
         private void Btn_advanced_up_Click(object sender, RoutedEventArgs e) {
@@ -281,7 +274,8 @@ namespace MyPdfEditor
             }
             PageList.Insert(index - 1, PageList[index]);
             PageList.RemoveAt(index + 1);
-            if (index - 1 == 0) {
+            ListView_right.SelectedIndex = index - 1;
+            if (ListView_right.SelectedIndex == 0) {
                 Btn_advanced_up.IsEnabled = false;
                 Btn_advanced_down.IsEnabled = true;
             }
@@ -298,7 +292,8 @@ namespace MyPdfEditor
             }
             PageList.Insert(index + 2, PageList[index]);
             PageList.RemoveAt(index);
-            if (index + 1 == ListView_right.Items.Count - 1) {
+            ListView_right.SelectedIndex = index + 1;
+            if (ListView_right.SelectedIndex == ListView_right.Items.Count - 1) {
                 Btn_advanced_up.IsEnabled = true;
                 Btn_advanced_down.IsEnabled = false;
             }
@@ -346,3 +341,4 @@ namespace MyPdfEditor
         }
     }
 }
+

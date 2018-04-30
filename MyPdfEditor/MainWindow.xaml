@@ -16,7 +16,7 @@
                 <Label x:Name="Label_merge" Content="All PDF Files to be merged:" FontSize="25" Margin="32,33,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="376" Height="50" VerticalAlignment="Top"/>
                 <Button x:Name="Btn_merge_up" IsEnabled="False" Content="↑" Margin="839,216,0,0" FontSize="20" FontFamily="Times New Roman" Click="Btn_merge_up_Click" HorizontalAlignment="Left" Width="105" Height="46" VerticalAlignment="Top"/>
                 <Button x:Name="Btn_merge_down" IsEnabled="False" Content="↓" Margin="839,330,0,0" FontFamily="Times New Roman" FontSize="20" Click="Btn_merge_down_Click" HorizontalAlignment="Left" Width="105" Height="46" VerticalAlignment="Top"/>
-                <ListView x:Name="ListView_merge" HorizontalAlignment="Left" Height="429" Margin="32,88,0,0" VerticalAlignment="Top" Width="788" ItemsSource="{Binding FileList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                <ListView x:Name="ListView_merge" HorizontalAlignment="Left" Height="429" Margin="32,88,0,0" VerticalAlignment="Top" Width="788" ItemsSource="{Binding FileList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectionChanged="ListView_merge_SelectionChanged">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="File Name" Width="770" DisplayMemberBinding="{Binding Path=Name}"/>
@@ -28,16 +28,17 @@
         <TabItem Header="Merge Advanced" Margin="29,-2,-29,0" FontSize="15">
             <Grid Background="#FFE5E5E5">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="35*"/>
                     <ColumnDefinition Width="29*"/>
-                    <ColumnDefinition Width="955*"/>
+                    <ColumnDefinition Width="1122*"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="Btn_advanced_add" Content="Add" Margin="0,140,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_add_Click" Grid.Column="1"/>
-                <Button x:Name="Btn_advanced_remove" Content="Remove" Margin="0,231,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_remove_Click" Grid.Column="1"/>
-                <Button x:Name="Btn_advanced_clear" Content="Clear" Margin="0,326,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_clear_Click" Grid.Column="1"/>
-                <Button x:Name="Btn_advanced_merge" Content="Merge" Margin="0,0,10,40" FontSize="25" Click="Btn_advanced_merge_Click" Grid.Column="1" Height="56" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="90"/>
-                <ListView x:Name="ListView_right" Margin="592,71,105,22" Grid.Column="1" ItemsSource="{Binding PageList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectionChanged="ListView_right_SelectionChanged">
+                <Button x:Name="Btn_advanced_add" Content="Add" Margin="0,140,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_add_Click" Grid.Column="1" Grid.ColumnSpan="2"/>
+                <Button x:Name="Btn_advanced_remove" Content="Remove" Margin="0,231,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_remove_Click" Grid.Column="1" Grid.ColumnSpan="2"/>
+                <Button x:Name="Btn_advanced_clear" Content="Clear" Margin="0,326,0,0" FontSize="20" HorizontalAlignment="Left" Width="100" Height="50" VerticalAlignment="Top" Click="Btn_advanced_clear_Click" Grid.Column="1" Grid.ColumnSpan="2"/>
+                <Button x:Name="Btn_advanced_merge" Content="Merge" Margin="0,0,10,40" FontSize="25" Click="Btn_advanced_merge_Click" Grid.Column="2" Height="56" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="90"/>
+                <ListView x:Name="ListView_right" Margin="563,71,105,22" Grid.Column="2" ItemsSource="{Binding PageList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectionChanged="ListView_right_SelectionChanged">
                     <ListView.View>
-                        <GridView AllowsColumnReorder="False">                            
+                        <GridView AllowsColumnReorder="False">
                             <GridViewColumn Header="From" Width="50">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
@@ -60,17 +61,17 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Label x:Name="Label_advanced_1" Content="All PDF Files:" Margin="119,31,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="222" FontSize="20" RenderTransformOrigin="0.495,0.743" Grid.Column="1"/>
-                <Label x:Name="Label_advanced_2" Content="PDF Files to be merged:" HorizontalAlignment="Left" Height="53" Margin="592,31,0,0" VerticalAlignment="Top" Width="252" FontSize="20" Grid.Column="1"/>
-                <Button x:Name="Btn_advanced_up" Content="↑" Margin="0,0,10,283" FontSize="25" Click="Btn_advanced_up_Click" Grid.Column="1" IsEnabled="False" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80"/>
-                <Button x:Name="Btn_advanced_down" Content="↓" Margin="0,0,10,188" FontSize="25" Click="Btn_advanced_down_Click" Grid.Column="1" IsEnabled="False" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80"/>
-                <Button x:Name="Btn_advanced_right" Content=">>" Margin="507,218,0,0" VerticalAlignment="Top" FontSize="25" HorizontalAlignment="Left" Width="80" Height="45" Click="Btn_advanced_right_Click" Grid.Column="1"/>
-                <Button x:Name="Btn_advanced_left" Content="&lt;&lt;" HorizontalAlignment="Left" Margin="507,313,0,0" VerticalAlignment="Top" Width="80" FontSize="25" Height="45" Click="Btn_advanced_left_Click" Grid.Column="1"/>
-                <ListView x:Name="ListView_left" Grid.Column="1" HorizontalAlignment="Left" Height="453" Margin="119,71,0,0" VerticalAlignment="Top" Width="383" ItemsSource="{Binding FileList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                <Label x:Name="Label_advanced_1" Content="All PDF Files:" Margin="90,31,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="222" FontSize="20" RenderTransformOrigin="0.495,0.743" Grid.Column="2"/>
+                <Label x:Name="Label_advanced_2" Content="PDF Files to be merged:" HorizontalAlignment="Left" Height="53" Margin="563,31,0,0" VerticalAlignment="Top" Width="252" FontSize="20" Grid.Column="2"/>
+                <Button x:Name="Btn_advanced_up" Content="↑" Margin="0,0,10,283" FontSize="25" Click="Btn_advanced_up_Click" Grid.Column="2" IsEnabled="False" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80"/>
+                <Button x:Name="Btn_advanced_down" Content="↓" Margin="0,0,10,188" FontSize="25" Click="Btn_advanced_down_Click" Grid.Column="2" IsEnabled="False" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80"/>
+                <Button x:Name="Btn_advanced_right" Content=">>" Margin="478,218,0,0" VerticalAlignment="Top" FontSize="25" HorizontalAlignment="Left" Width="80" Height="45" Click="Btn_advanced_right_Click" Grid.Column="2"/>
+                <Button x:Name="Btn_advanced_left" Content="&lt;&lt;" HorizontalAlignment="Left" Margin="478,313,0,0" VerticalAlignment="Top" Width="80" FontSize="25" Height="45" Click="Btn_advanced_left_Click" Grid.Column="2"/>
+                <ListView x:Name="ListView_left" Grid.Column="2" HorizontalAlignment="Left" Height="453" Margin="90,71,0,0" VerticalAlignment="Top" Width="383" ItemsSource="{Binding FileList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
                     <ListView.View>
                         <GridView AllowsColumnReorder="False">
                             <GridViewColumn Header="Pages" Width="55" DisplayMemberBinding="{Binding Path=PageTotal}"/>
-                            <GridViewColumn Header="File" DisplayMemberBinding="{Binding Path=Name}"/>                            
+                            <GridViewColumn Header="File" DisplayMemberBinding="{Binding Path=Name}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
