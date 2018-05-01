@@ -43,7 +43,7 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <TextBox Text="{Binding Path=PageStart, Mode=TwoWay}" Width="35"/>
+                                            <TextBox Text="{Binding Path=PageStart, Mode=TwoWay}" Width="35" InputMethod.IsInputMethodEnabled="False" LostFocus="TextBox_start_LostFocus" PreviewKeyDown="TextBox_PreviewKeyDown" TextChanged="TextBox_start_TextChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -52,7 +52,7 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <TextBox Text="{Binding Path=PageEnd, Mode=TwoWay}" Width="35"/>
+                                            <TextBox Text="{Binding Path=PageEnd, Mode=TwoWay}" Width="35" InputMethod.IsInputMethodEnabled="False" LostFocus="TextBox_end_LostFocus" PreviewKeyDown="TextBox_PreviewKeyDown" TextChanged="TextBox_end_TextChanged"/>
                                         </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -76,9 +76,6 @@
                     </ListView.View>
                 </ListView>
             </Grid>
-        </TabItem>
-        <TabItem Header="Split" Margin="28,-2,-60,0" FontSize="15">
-            <Grid Background="#FFE5E5E5"/>
         </TabItem>
     </TabControl>
 </Window>

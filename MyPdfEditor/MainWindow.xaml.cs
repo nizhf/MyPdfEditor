@@ -1,5 +1,7 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
+using System;
+using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -20,18 +22,44 @@ namespace MyPdfEditor
             private string name;
             private int pageStart;
             private int pageEnd;
+            private int pageTotal;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public FileInfo(string name, int pageStart, int pageEnd) {
+            public FileInfo(string name, int pageStart, int pageEnd, int pageTotal) {
                 this.name = name;
                 this.pageStart = pageStart;
                 this.pageEnd = pageEnd;
+                this.pageTotal = pageTotal;
             }
 
-            public int PageTotal { get => pageEnd - pageStart + 1; }
-            public string Name { get => name; set => name = value; }
-            public int PageStart { get => pageStart; set => pageStart = value; }
-            public int PageEnd { get => pageEnd; set => pageEnd = value; }
+            public int PageTotal {
+                get => pageTotal;
+                set {
+                    pageTotal = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PageTotal"));
+                }
+            }
+            public string Name {
+                get => name;
+                set {
+                    name = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Name"));
+                }
+            }
+            public int PageStart {
+                get => pageStart;
+                set {
+                    pageStart = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PageStart"));
+                }
+            }
+            public int PageEnd {
+                get => pageEnd;
+                set {
+                    pageEnd = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PageEnd"));
+                }
+            }
         }
 
         public MainWindow() {
@@ -54,7 +82,15 @@ namespace MyPdfEditor
 
         private void MergePdfFiles(string outputFile) {
             Document document = new Document();
-            PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+            PdfWriter writer = null;
+            try {
+                writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+            }
+            catch (Exception e) {
+                MessageBox.Show(e.Message);
+                return;
+            }
+
             document.Open();
             PdfContentByte cb = writer.DirectContent;
             PdfImportedPage newPage;
@@ -86,7 +122,15 @@ namespace MyPdfEditor
 
         private void MergePdfFilesAdvance(string outputFile) {
             Document document = new Document();
-            PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+            PdfWriter writer = null;
+            try {
+                writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+            }
+            catch (Exception e) {
+                MessageBox.Show(e.Message);
+                return;
+            }
+            
             document.Open();
             PdfContentByte cb = writer.DirectContent;
             PdfImportedPage newPage;
@@ -129,7 +173,7 @@ namespace MyPdfEditor
             DefaultPath = ofd.FileNames[0].Remove(ofd.FileNames[0].Length - ofd.SafeFileName.Length);
             foreach (string name in ofd.FileNames) {
                 var reader = new PdfReader(name);
-                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages));
+                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages, reader.NumberOfPages));
             }
         }
 
@@ -214,7 +258,7 @@ namespace MyPdfEditor
 
         private void ListView_merge_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             int index = ListView_merge.SelectedIndex;
-            if (index == -1) {
+            if (index == -1 || ListView_merge.Items.Count == 1) {
                 Btn_merge_up.IsEnabled = false;
                 Btn_merge_down.IsEnabled = false;
             }
@@ -254,7 +298,7 @@ namespace MyPdfEditor
             if (items.Count <= 0)
                 return;
             foreach (FileInfo item in items) {
-                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal));
+                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal, item.PageTotal));
             }
         }
 
@@ -322,7 +366,7 @@ namespace MyPdfEditor
 
         private void ListView_right_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             int index = ListView_right.SelectedIndex;
-            if (index == -1) {
+            if (index == -1 || ListView_right.Items.Count == 1) {
                 Btn_advanced_up.IsEnabled = false;
                 Btn_advanced_down.IsEnabled = false;
             }
@@ -339,6 +383,56 @@ namespace MyPdfEditor
                 Btn_advanced_down.IsEnabled = true;
             }
         }
+
+        private void TextBox_start_LostFocus(object sender, RoutedEventArgs e) {
+            var currentBox = sender as TextBox;
+            var item = currentBox.DataContext as FileInfo;
+            if (item.PageStart <= 0) 
+                item.PageStart = 1;
+            if (item.PageEnd > item.PageTotal) 
+                item.PageEnd = item.PageTotal;
+            if (item.PageStart > item.PageEnd) 
+                item.PageStart = item.PageEnd;
+        }
+
+        private void TextBox_end_LostFocus(object sender, RoutedEventArgs e) {
+            var currentBox = sender as TextBox;
+            var item = currentBox.DataContext as FileInfo;
+            if (item.PageStart <= 0) 
+                item.PageStart = 1;
+            if (item.PageEnd > item.PageTotal)
+                item.PageEnd = item.PageTotal;
+            else if (item.PageStart > item.PageEnd)
+                item.PageEnd = item.PageStart;
+        }
+
+        private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e) {
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
+                e.Handled = true;
+            }
+            else if (!((e.Key >= Key.D0 && e.Key <= Key.D9) || (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9) || e.Key == Key.Delete 
+                || e.Key == Key.Back || e.Key == Key.Tab || e.Key == Key.Enter)) {
+                e.Handled = true;
+            }
+        }
+
+        private void TextBox_start_TextChanged(object sender, TextChangedEventArgs e) {
+            var currentBox = sender as TextBox;
+            if (currentBox.Text.Length == 0) {
+                currentBox.Text = "1";
+                currentBox.SelectAll();
+            }
+        }
+
+        private void TextBox_end_TextChanged(object sender, TextChangedEventArgs e) {
+            var currentBox = sender as TextBox;
+            var item = currentBox.DataContext as FileInfo;
+            if (currentBox.Text.Length == 0) {
+                currentBox.Text = item.PageTotal.ToString();
+                currentBox.SelectAll();
+            }
+        }
+        
     }
 }
 
