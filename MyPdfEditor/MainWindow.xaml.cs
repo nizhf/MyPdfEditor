@@ -94,27 +94,33 @@ namespace MyPdfEditor
             document.Open();
             PdfContentByte cb = writer.DirectContent;
             PdfImportedPage newPage;
-            foreach (FileInfo item in FileList) {
-                PdfReader reader = new PdfReader(item.Name);
-                int rotation;
-                for (int j = 1; j <= reader.NumberOfPages; j++) {
-                    document.SetPageSize(reader.GetPageSizeWithRotation(j));
-                    document.NewPage();
-                    newPage = writer.GetImportedPage(reader, j);
-                    rotation = reader.GetPageRotation(j);
-                    if (rotation == 90) {
-                        cb.AddTemplate(newPage, 0, -1f, 1f, 0, 0, reader.GetPageSizeWithRotation(j).Height);
-                    }
-                    else if (rotation == 180) {
-                        cb.AddTemplate(newPage, -1f, 0, 0, -1f, reader.GetPageSizeWithRotation(j).Width, reader.GetPageSizeWithRotation(j).Height);
-                    }
-                    else if (rotation == 270) {
-                        cb.AddTemplate(newPage, 0, 1f, -1f, 0, reader.GetPageSizeWithRotation(j).Width, 0);
-                    }
-                    else {
-                        cb.AddTemplate(newPage, 1f, 0, 0, 1f, 0, 0);
+            foreach (FileInfo item in FileList) {                
+                try {
+                    PdfReader reader = new PdfReader(item.Name);
+                    PdfReader.unethicalreading = true;
+                    for (int j = 1; j <= reader.NumberOfPages; j++) {
+                        document.SetPageSize(reader.GetPageSizeWithRotation(j));
+                        document.NewPage();
+                        newPage = writer.GetImportedPage(reader, j);
+                        int rotation = reader.GetPageRotation(j);
+                        if (rotation == 90) {
+                            cb.AddTemplate(newPage, 0, -1f, 1f, 0, 0, reader.GetPageSizeWithRotation(j).Height);
+                        }
+                        else if (rotation == 180) {
+                            cb.AddTemplate(newPage, -1f, 0, 0, -1f, reader.GetPageSizeWithRotation(j).Width, reader.GetPageSizeWithRotation(j).Height);
+                        }
+                        else if (rotation == 270) {
+                            cb.AddTemplate(newPage, 0, 1f, -1f, 0, reader.GetPageSizeWithRotation(j).Width, 0);
+                        }
+                        else {
+                            cb.AddTemplate(newPage, 1f, 0, 0, 1f, 0, 0);
+                        }
                     }
                 }
+                catch (Exception e) {
+                    MessageBox.Show(e.Message);
+                    return;
+                }                
             }
             document.Close();
             MessageBox.Show("Merge completed!");
