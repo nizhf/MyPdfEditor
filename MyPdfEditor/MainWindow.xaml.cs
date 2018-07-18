@@ -23,13 +23,15 @@ namespace MyPdfEditor
             private int pageStart;
             private int pageEnd;
             private int pageTotal;
+            private int rotation;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public FileInfo(string name, int pageStart, int pageEnd, int pageTotal) {
+            public FileInfo(string name, int pageStart, int pageEnd, int pageTotal, int rotation) {
                 this.name = name;
                 this.pageStart = pageStart;
                 this.pageEnd = pageEnd;
                 this.pageTotal = pageTotal;
+                this.rotation = rotation;
             }
 
             public int PageTotal {
@@ -60,107 +62,86 @@ namespace MyPdfEditor
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PageEnd"));
                 }
             }
+
+            public int Rotation {
+                get => rotation;
+                set {
+                    rotation = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Rotation"));
+                }
+            }
         }
 
         public MainWindow() {
             InitializeComponent();
-            fileList = new ObservableCollection<FileInfo>();
-            pageList = new ObservableCollection<FileInfo>();
-            defaultPath = "C:\\";
-
+            FileList = new ObservableCollection<FileInfo>();
+            PageList = new ObservableCollection<FileInfo>();
+            DefaultPath = "C:\\";
         }
 
-        private ObservableCollection<FileInfo> fileList;
-        public ObservableCollection<FileInfo> FileList { get => fileList; set => fileList = value; }
-
-        private ObservableCollection<FileInfo> pageList;
-        public ObservableCollection<FileInfo> PageList { get => pageList; set => pageList = value; }
-
-        private string defaultPath;
-        public string DefaultPath { get => defaultPath; set => defaultPath = value; }
+        public ObservableCollection<FileInfo> FileList { get; set; }
+        public ObservableCollection<FileInfo> PageList { get; set; }
+        public string DefaultPath { get; set; }
 
 
         private void MergePdfFiles(string outputFile) {
             Document document = new Document();
-            PdfWriter writer = null;
             try {
-                writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+                PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+                document.Open();
+                PdfContentByte cb = writer.DirectContent;
+                foreach (FileInfo item in FileList) {                
+                    PdfReader reader = new PdfReader(item.Name);
+                    PdfReader.unethicalreading = true;
+                    for (int j = 1; j <= reader.NumberOfPages; j++) {
+                        document.NewPage();
+                        cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 0);
+                    }          
+                }
             }
             catch (Exception e) {
                 MessageBox.Show(e.Message);
                 return;
-            }
-
-            document.Open();
-            PdfContentByte cb = writer.DirectContent;
-            PdfImportedPage newPage;
-            foreach (FileInfo item in FileList) {                
-                try {
-                    PdfReader reader = new PdfReader(item.Name);
-                    PdfReader.unethicalreading = true;
-                    for (int j = 1; j <= reader.NumberOfPages; j++) {
-                        document.SetPageSize(reader.GetPageSizeWithRotation(j));
-                        document.NewPage();
-                        newPage = writer.GetImportedPage(reader, j);
-                        int rotation = reader.GetPageRotation(j);
-                        if (rotation == 90) {
-                            cb.AddTemplate(newPage, 0, -1f, 1f, 0, 0, reader.GetPageSizeWithRotation(j).Height);
-                        }
-                        else if (rotation == 180) {
-                            cb.AddTemplate(newPage, -1f, 0, 0, -1f, reader.GetPageSizeWithRotation(j).Width, reader.GetPageSizeWithRotation(j).Height);
-                        }
-                        else if (rotation == 270) {
-                            cb.AddTemplate(newPage, 0, 1f, -1f, 0, reader.GetPageSizeWithRotation(j).Width, 0);
-                        }
-                        else {
-                            cb.AddTemplate(newPage, 1f, 0, 0, 1f, 0, 0);
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    MessageBox.Show(e.Message);
-                    return;
-                }                
             }
             document.Close();
             MessageBox.Show("Merge completed!");
         }
 
         private void MergePdfFilesAdvance(string outputFile) {
-            Document document = new Document();
-            PdfWriter writer = null;
+            Document document = new Document();            
             try {
-                writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));
+                PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create));                
+                document.Open();
+                PdfContentByte cb = writer.DirectContent;
+                foreach (FileInfo item in PageList) {
+                    PdfReader reader = new PdfReader(item.Name);
+                    int rotation = reader.GetPageRotation(item.PageStart) + item.Rotation;
+                    rotation = rotation - rotation / 360 * 360;
+                    for (int j = item.PageStart; j <= item.PageEnd; j++) {
+                        Rectangle rc = new Rectangle(reader.GetPageSize(j));
+                        if (rotation / 90 % 2 == 1) {
+                            rc = rc.Rotate();                            
+                        }
+                        document.SetPageSize(rc);
+                        document.NewPage();
+                        if (rotation == 90) {
+                            cb.AddTemplate(writer.GetImportedPage(reader, j), 0, -1f, 1f, 0, 0, rc.Height);
+                        }
+                        else if (rotation == 180) {
+                            cb.AddTemplate(writer.GetImportedPage(reader, j), -1f, 0, 0, -1f, rc.Width, rc.Height);
+                        }
+                        else if (rotation == 270) {
+                            cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 1f, -1f, 0, rc.Width, 0);
+                        }
+                        else {
+                            cb.AddTemplate(writer.GetImportedPage(reader, j), 1f, 0, 0, 1f, 0, 0);
+                        }                    
+                    }
+                }
             }
             catch (Exception e) {
                 MessageBox.Show(e.Message);
                 return;
-            }
-            
-            document.Open();
-            PdfContentByte cb = writer.DirectContent;
-            PdfImportedPage newPage;
-            foreach (FileInfo item in PageList) {
-                PdfReader reader = new PdfReader(item.Name);
-                int rotation;
-                for (int j = item.PageStart; j <= item.PageEnd; j++) {
-                    document.SetPageSize(reader.GetPageSizeWithRotation(j));
-                    document.NewPage();
-                    newPage = writer.GetImportedPage(reader, j);
-                    rotation = reader.GetPageRotation(j);
-                    if (rotation == 90) {
-                        cb.AddTemplate(newPage, 0, -1f, 1f, 0, 0, reader.GetPageSizeWithRotation(j).Height);
-                    }
-                    else if (rotation == 180) {
-                        cb.AddTemplate(newPage, -1f, 0, 0, -1f, reader.GetPageSizeWithRotation(j).Width, reader.GetPageSizeWithRotation(j).Height);
-                    }
-                    else if (rotation == 270) {
-                        cb.AddTemplate(newPage, 0, 1f, -1f, 0, reader.GetPageSizeWithRotation(j).Width, 0);
-                    }
-                    else {
-                        cb.AddTemplate(newPage, 1f, 0, 0, 1f, 0, 0);
-                    }
-                }
             }
             document.Close();
             MessageBox.Show("Merge completed!");
@@ -179,7 +160,7 @@ namespace MyPdfEditor
             DefaultPath = ofd.FileNames[0].Remove(ofd.FileNames[0].Length - ofd.SafeFileName.Length);
             foreach (string name in ofd.FileNames) {
                 var reader = new PdfReader(name);
-                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages, reader.NumberOfPages));
+                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages, reader.NumberOfPages, 0));
             }
         }
 
@@ -304,7 +285,7 @@ namespace MyPdfEditor
             if (items.Count <= 0)
                 return;
             foreach (FileInfo item in items) {
-                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal, item.PageTotal));
+                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal, item.PageTotal, 0));
             }
         }
 
@@ -412,6 +393,15 @@ namespace MyPdfEditor
                 item.PageEnd = item.PageStart;
         }
 
+        private void TextBox_rotation_LostFocus(object sender, RoutedEventArgs e) {
+            var currentBox = sender as TextBox;
+            var item = currentBox.DataContext as FileInfo;
+            if (item.Rotation - item.Rotation / 90 * 90 <= 45) 
+                item.Rotation = item.Rotation / 90 * 90;
+            else 
+                item.Rotation = (item.Rotation / 90 + 1) * 90;            
+        }
+
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e) {
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 e.Handled = true;
@@ -438,7 +428,16 @@ namespace MyPdfEditor
                 currentBox.SelectAll();
             }
         }
-        
+
+        private void TextBox_rotation_TextChanged(object sender, TextChangedEventArgs e) {
+            var currentBox = sender as TextBox;
+            var item = currentBox.DataContext as FileInfo;
+            if (currentBox.Text.Length == 0) {
+                currentBox.Text = "0";
+                currentBox.SelectAll();
+            }
+        }
+
     }
 }
 

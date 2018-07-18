@@ -52,10 +52,10 @@
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>416BAE2BA1E727E0A3357080E4D1C1F83B39352B</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>51EDFFD6A2DF3247D0C603A6D25A31E2554A7918</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>MyPdfEditor_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>MyPdfEditor_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -121,7 +121,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="MyPdfEditor_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
