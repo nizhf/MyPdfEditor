@@ -94,6 +94,7 @@ namespace MyPdfEditor
                     PdfReader reader = new PdfReader(item.Name);
                     PdfReader.unethicalreading = true;
                     for (int j = 1; j <= reader.NumberOfPages; j++) {
+                        document.SetPageSize(reader.GetPageSizeWithRotation(j));
                         document.NewPage();
                         cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 0);
                     }          
