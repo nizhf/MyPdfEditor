@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using iTextSharp.awt.geom;
 
 namespace MyPdfEditor
 {
@@ -24,14 +25,16 @@ namespace MyPdfEditor
             private int pageEnd;
             private int pageTotal;
             private int rotation;
+            private int flip;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public FileInfo(string name, int pageStart, int pageEnd, int pageTotal, int rotation) {
+            public FileInfo(string name, int pageStart, int pageEnd, int pageTotal, int rotation, int flip) {
                 this.name = name;
                 this.pageStart = pageStart;
                 this.pageEnd = pageEnd;
                 this.pageTotal = pageTotal;
                 this.rotation = rotation;
+                this.flip = flip;
             }
 
             public int PageTotal {
@@ -70,6 +73,15 @@ namespace MyPdfEditor
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Rotation"));
                 }
             }
+
+            public int Flip {
+                get => flip;
+                set {
+                    flip = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Flip"));
+                }
+            }
+
         }
 
         public MainWindow() {
@@ -118,6 +130,7 @@ namespace MyPdfEditor
                     PdfReader reader = new PdfReader(item.Name);
                     int rotation = reader.GetPageRotation(item.PageStart) + item.Rotation;
                     rotation = rotation - rotation / 360 * 360;
+                    int flip = item.Flip;
                     for (int j = item.PageStart; j <= item.PageEnd; j++) {
                         Rectangle rc = new Rectangle(reader.GetPageSize(j));
                         if (rotation / 90 % 2 == 1) {
@@ -125,18 +138,49 @@ namespace MyPdfEditor
                         }
                         document.SetPageSize(rc);
                         document.NewPage();
-                        if (rotation == 90) {
-                            cb.AddTemplate(writer.GetImportedPage(reader, j), 0, -1f, 1f, 0, 0, rc.Height);
+                        if (flip == 0) {
+                            if (rotation == 90) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 0, -1f, 1f, 0, 0, rc.Height);
+                            }
+                            else if (rotation == 180) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), -1f, 0, 0, -1f, rc.Width, rc.Height);
+                            }
+                            else if (rotation == 270) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 1f, -1f, 0, rc.Width, 0);
+                            }
+                            else {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 1f, 0, 0, 1f, 0, 0);
+                            }
                         }
-                        else if (rotation == 180) {
-                            cb.AddTemplate(writer.GetImportedPage(reader, j), -1f, 0, 0, -1f, rc.Width, rc.Height);
+                        else if (flip == 1) {
+                            if (rotation == 90) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 1f, 1f, 0, 0, 0);
+                            }
+                            else if (rotation == 180) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 1f, 0, 0, -1f, 0, rc.Height);
+                            }
+                            else if (rotation == 270) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 0, -1f, -1f, 0, rc.Width, rc.Height);
+                            }
+                            else {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), -1, 0, 0, 1, rc.Width, 0);
+                            }
                         }
-                        else if (rotation == 270) {
-                            cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 1f, -1f, 0, rc.Width, 0);
+                        else if (flip == 2) {
+                            if (rotation == 90) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 0, -1f, -1f, 0, rc.Width, rc.Height);
+                            }
+                            else if (rotation == 180) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), -1, 0, 0, 1, rc.Width, 0);
+                            }
+                            else if (rotation == 270) {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 0, 1f, 1f, 0, 0, 0);
+                            }
+                            else {
+                                cb.AddTemplate(writer.GetImportedPage(reader, j), 1f, 0, 0, -1f, 0, rc.Height);
+                            }
                         }
-                        else {
-                            cb.AddTemplate(writer.GetImportedPage(reader, j), 1f, 0, 0, 1f, 0, 0);
-                        }                    
+                                       
                     }
                 }
             }
@@ -161,7 +205,7 @@ namespace MyPdfEditor
             DefaultPath = ofd.FileNames[0].Remove(ofd.FileNames[0].Length - ofd.SafeFileName.Length);
             foreach (string name in ofd.FileNames) {
                 var reader = new PdfReader(name);
-                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages, reader.NumberOfPages, 0));
+                FileList.Add(new FileInfo(name, 1, reader.NumberOfPages, reader.NumberOfPages, 0, 0));
             }
         }
 
@@ -286,7 +330,7 @@ namespace MyPdfEditor
             if (items.Count <= 0)
                 return;
             foreach (FileInfo item in items) {
-                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal, item.PageTotal, 0));
+                PageList.Add(new FileInfo(item.Name, 1, item.PageTotal, item.PageTotal, 0, 0));
             }
         }
 

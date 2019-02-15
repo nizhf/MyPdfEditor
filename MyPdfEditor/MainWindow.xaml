@@ -70,6 +70,19 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
+                            <GridViewColumn Header="Flip" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <ComboBox x:Name="comboBox" Width="85" SelectedIndex="{Binding Path=Flip, Mode=TwoWay}">
+                                                <ComboBoxItem Content="No" HorizontalAlignment="Left" Width="85"/>
+                                                <ComboBoxItem Content="Horizontal" HorizontalAlignment="Left" Width="85"/>
+                                                <ComboBoxItem Content="Vertical" HorizontalAlignment="Left" Width="85"/>
+                                            </ComboBox>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn Header="File" DisplayMemberBinding="{Binding Path=Name}" />
                         </GridView>
                     </ListView.View>
